@@ -46,6 +46,7 @@ Changes in version 1.2:
 * Removed Boom and MBF features from the "Doom" namespace.
 * Added missing Strife linedef opacity flag.
 * Made Strife thing opacity flags behavior more explicit.
+* Formalized the requirement of the compiled map data lumps.
 
 Changes in version 1.1:
 * Added Preface.
@@ -175,8 +176,14 @@ UDMF maps shall be laid out within the archive directory as follows:
 
 (HEADER) = Any lump name from 1 to 8 characters. Serves as the name of the map.
 TEXTMAP  = Single UDMF lump containing all data for the map.
-...      = Blockmap, reject, BSP tree, and port-specific lumps, if any. The
-           format and presence of these resources are not defined by UDMF.
+ZNODES   = BSP tree in any ZDBSP format.
+BLOCKMAP = Linedef collision lookup table, in either vanilla or XBM1 formats.
+REJECT   = Sector visibility matrix.
+BEHAVIOR = Compiled ACS level script. Hexen-only.
+SCRIPTS  = Uncompiled ACS level script. Hexen-only.
+DIALOGUE = Dialogue for NPCs. Strife-only.
+...      = Any port-specific lumps. The format and presence of these additional
+           resources are not defined by UDMF.
 ENDMAP   = Required closing lump.
 
 Implementing editors and source ports may distinguish a UDMF map from a
@@ -190,6 +197,46 @@ interfere with the order or presence of the lumps.
 Use of non-implementing resource editors to manipulate UDMF-map-containing WAD
 files is not recommended, however.
 
+Formal descriptions for the following lump formats and algorithms will not be
+provided in this document. Please refer to their own specification.
+
+The ZNODES lump is a required entry in the list of supported UDMF lumps. It is
+expected to come in any valid ZDBSP binary lump format, those being XNOD, XGLN,
+XGL2 and XGL3, or their respective Zlib-compressed variants, those being ZNOD,
+ZGLN, ZGL2 and ZGL3. Implementing ports which require strictly convex subsectors
+for the purposes of hardware rendering may optionally require the ZNODES lump to
+not come in XNOD or ZNOD in their respective namespace (see Section II.C), or
+generate convex polygon data from other algorithmic means, such as ear clippers,
+or always generate convex subsectors from an internal BSP compiler.
+
+The BLOCKMAP lump is an optional entry in the list of supported UDMF lumps. It
+is expected to come in the 16-bit vanilla binary format, or in the extended
+32-bit XBM1 format. If the BLOCKMAP lump is missing, the implementing port is
+expected to generate the block lists internally.
+
+The REJECT lump is an optional entry in the list of supported UDMF lumps. It is
+expected to be a complete visibility matrix for all the sectors in the level.
+While its presence is optional, and implementing ports are expect to generate a
+padded matrix internally, a correctly compiled REJECT lump is highly recommended
+for the performance improvements of skipping unnecessary line-of-sight checks.
+
+The BEHAVIOR lump is an optional entry in the list of supported UDMF lumps.
+It is expected to come in the ACS0 bytecode format, and is comprised of the
+compiled bytecode used for the level's local ACS script. It may only be used in
+the Hexen namespace, and not in Doom, Heretic or Strife. Implementing ports with
+their own namespace may choose to optionally enable it for their use-case. Such
+implementing may choose to optionally allow extended bytecode formats, such as
+ACSe or ACSE.
+
+The SCRIPTS lump is an additional companion to the BEHAVIOR lump. It is
+comprised of the respective uncompiled ACS code. Stored locally for debugging
+and documentation purposes, it is not used at runtime.
+
+The DIALOGUE lump is an optional entry in the list of supported UDMF lumps. It
+is expected to come in USDF (Universal Strife Dialogue Format) and is comprised
+of the level's NPC conversations. It may only be used in the Strife namespace,
+and not in Doom, Heretic or Hexen. Implementing ports with their own namespace
+may choose to optionally enable it for their use-case.
 
 --------------------------------
 II.C : Implementation Dependence
