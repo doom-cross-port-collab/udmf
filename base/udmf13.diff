@@ -1,0 +1,208 @@
+--- udmf12.txt
++++ udmf13.txt
+@@ -1,5 +1,5 @@
+ ===============================================================================
+-Universal Doom Map Format Specification v1.2 - 2026-05-18
++Universal Doom Map Format Specification v1.3 - 2026-??-??
+ 
+ Written by James "Quasar" Haley - haleyjd@hotmail.com
+ 
+@@ -40,6 +40,9 @@
+ Changelog
+ =======================================
+ 
++Changes in version 1.3:
++* Added definitions for PSX Doom and Doom 64 namespaces.
++
+ Changes in version 1.2:
+ * Updated changelog format.
+ * Removed trailing whitespace.
+@@ -179,7 +182,8 @@
+ BLOCKMAP = Linedef collision lookup table, in either vanilla or XBM1 formats.
+ REJECT   = Sector visibility matrix.
+ BEHAVIOR = Compiled ACS level script. Hexen-only.
+-SCRIPTS  = Uncompiled ACS level script. Hexen-only.
++MACROS   = Compiled BLAM level script. Doom 64-only.
++SCRIPTS  = Uncompiled ACS level script. Only in Hexen or Doom 64.
+ DIALOGUE = Dialogue for NPCs. Strife-only.
+ ...      = Any port-specific lumps. The format and presence of these additional
+            resources are not defined by UDMF.
+@@ -227,9 +231,13 @@
+ implementing may choose to optionally allow extended bytecode formats, such as
+ ACSe or ACSE.
+ 
+-The SCRIPTS lump is an additional companion to the BEHAVIOR lump. It is
+-comprised of the respective uncompiled ACS code. Stored locally for debugging
+-and documentation purposes, it is not used at runtime.
++The MACROS lump is an optional entry in the list of supported UDMF lumps.
++It is expected to come in the same format as the original MACROS lump of the
++Doom 64 binary map format. It may only be used in the Doom 64 namespace.
++
++The SCRIPTS lump is an additional companion to the BEHAVIOR or MACROS lumps.
++It is comprised of the respective uncompiled ACS or BLAM code. Stored locally
++for debugging and documentation purposes, it is not used at runtime.
+ 
+ The DIALOGUE lump is an optional entry in the list of supported UDMF lumps. It
+ is expected to come in USDF (Universal Strife Dialogue Format) and is comprised
+@@ -268,6 +276,8 @@
+ Heretic
+ Hexen
+ Strife
++PSXDoom
++Doom64
+ 
+ The use of one of these namespaces indicates that all line specials, sector
+ specials, thing types, and if applicable, thing specials contained in the UDMF
+@@ -295,7 +305,7 @@
+ III. Standardized Fields
+ =======================================
+ 
+-The UDMF v1.2 specification considers the following fields standard. They must
++The UDMF v1.3 specification considers the following fields standard. They must
+ be recognized by all implementing ports and editors (support for the features
+ they signify is not necessarily required, such as for ports which do not
+ implement Hexen support - all fields unknown to a given port should be
+@@ -323,13 +333,11 @@
+       dontdraw      = <bool>; // true = line never drawn on map.
+       mapped        = <bool>; // true = always appears on map.
+ 
+-      // BOOM passuse flag not supported in Strife/Heretic/Hexen namespaces.
++      // Boom passuse flag; undefined outside of the Doom namespace.
+ 
+       passuse       = <bool>; // true = passes use action.
+ 
+-      // Strife specific flags. Support for other games is not defined by
+-      // default and these flags should be ignored when reading maps not for
+-      // the Strife namespace or maps for a port which supports these flags.
++      // Strife flags; undefined outside of the Strife namespace.
+ 
+       jumpover      = <bool>; // true = line is a Strife railing.
+       blockfloaters = <bool>; // true = line is a Strife float-blocker.
+@@ -337,10 +345,7 @@
+       transparent   = <bool>; // true = line is a Strife 25% opacity line.
+                               // transparent has priority over translucent.
+ 
+-      // Note: SPAC flags should be set false in Doom/Heretic/Strife
+-      // namespace maps. Specials in those games do not support this
+-      // mechanism and instead imply activation parameters through the
+-      // special number. All flags default to false.
++      // Hexen SPAC flags; undefined outside of the Hexen namespace.
+ 
+       playercross   = <bool>; // true = player can cross.
+       playeruse     = <bool>; // true = player can use.
+@@ -352,6 +357,42 @@
+       missilecross  = <bool>; // true = projectile can cross.
+       repeatspecial = <bool>; // true = repeatable special.
+ 
++      // Doom 64 flags; undefined outside of the Doom 64 namespace.
++
++      drawmasked       = <bool>; // true = draw middle texture on sidedef.
++      noocclusion      = <bool>; // true = no added to occlusion buffer.
++      dontpegmiddle    = <bool>; // true = middle texture unpegged.
++      thingtrigger     = <bool>; // true = dying things can trigger special.
++      blockprojectiles = <bool>; // true = line blocks projectiles.
++      scrollright      = <bool>; // true = scroll texture to the right.
++      scrollleft       = <bool>; // true = scroll texture to the left.
++      scrollup         = <bool>; // true = scroll texture up.
++      scrolldown       = <bool>; // true = scroll texture down.
++      blendfulltop     = <bool>; // true = do not blending extended for top.
++      blendfullbottom  = <bool>; // true = do not blending extended for bottom.
++      blendingsector   = <bool>; // true = use sector color blending.
++      firstsideonly    = <bool>; // true = can only trigger from front side.
++      noautomaptrigger = <bool>; // true = do not show as special in automap.
++      inverseblend     = <bool>; // true = invert blending of sector colors.
++      blockplayers     = <bool>; // true = blocks player only.
++      mirrorhorizontal = <bool>; // true = texture is mirrored horizontally.
++      mirrorvertical   = <bool>; // true = texture is mirrored vertically.
++      specialred       = <bool>; // true = requires red key to activate.
++      specialblue      = <bool>; // true = requires blue key to activate.
++      specialyellow    = <bool>; // true = requires yellow key to activate.
++      specialcross     = <bool>; // true = can be activated by thing crossing.
++      specialshoot     = <bool>; // true = can be activated by thing shooting.
++      specialuse       = <bool>; // true = can be activated by thing using.
++      repeatspecial    = <bool>; // true = repeatable special. Same as Hexen.
++      switchmasktexture = <integer>; // Special values to handle switch changes.
++      switchmaskdecal   = <integer>; // Indicates which texture should be used
++                                     // for either 'On' (switchmasktexture)
++                                     // or 'Off' (switchmaskdecal) states.
++                                     // 0 = affects none
++                                     // 1 = affects upper texture
++                                     // 2 = affects lower texture
++                                     // 3 = affects middle texture
++
+       special = <integer>; // Special. Default = 0.
+       arg0    = <integer>; // Argument 0. Default = 0.
+       arg1    = <integer>; // Argument 1. Default = 0.
+@@ -400,6 +441,20 @@
+       special = <integer>; // Sector special. Default = 0.
+       id      = <integer>; // Sector tag/id. Default = 0.
+ 
++      // PSX Doom only.
++      color_id = <integer>; // Sector's light color, index into LIGHTS lump.
++      noreverb = <bool>;    // true = disable reverd effects.
++
++      // Doom 64 only. Uses hexadecimal RGB values, i.e #ffffff, as integers.
++      // As opposed to the Doom 64 map format's use of a dedicated compiled lump
++      // for RGB light data, in the LIGHTS lump, relevant Doom 64 implementing
++      // engines are expected to handle indexing idential colors at load time.
++      color_floor      = <integer>; // Color of sector's floor.
++      color_ceiling    = <integer>; // Color of sector's ceiling.
++      color_sprites    = <integer>; // Color of things in sector.
++      color_walltop    = <integer>; // Color of top of sector's sidedefs.
++      color_wallbottom = <integer>; // Color of bottom of sector's sidedefs.
++
+       comment = <string>; // A comment. Implementors should attach no special
+                           // semantic meaning to this field.
+    }
+@@ -430,11 +485,11 @@
+       dm          = <bool>; // true = in DM mode.
+       coop        = <bool>; // true = in Coop.
+ 
+-      // MBF friend flag not supported in Strife/Heretic/Hexen namespaces.
++      // MBF friend flag; undefined outside of the Doom namespace.
+ 
+       friend      = <bool>; // true = MBF friend.
+ 
+-      // Hexen flags; not supported in Doom/Strife/Heretic namespaces.
++      // Hexen flags; undefined outside of the Hexen namespace.
+ 
+       dormant     = <bool>; // true = dormant thing.
+       class1      = <bool>; // true = Present for pclass 1.
+@@ -442,9 +497,7 @@
+       class3      = <bool>; // true = Present for pclass 3.
+ 
+ 
+-      // Strife specific flags. Support for other games is not defined by
+-      // default and these flags should be ignored when reading maps not for
+-      // the Strife namespace or maps for a port which supports these flags.
++      // Strife flags; undefined outside of the Strife namespace.
+       standing    = <bool>; // true = Strife NPC flag.
+       strifeally  = <bool>; // true = Strife ally flag.
+       translucent = <bool>; // true = Strife 25% opacity flag.
+@@ -452,6 +505,13 @@
+                             // when combining both translucent and invisible,
+                             // an opacity of 75% is used.
+ 
++      // Doom 64 flags; undefined outside of the Doom 64 namespace.
++      deferspawn     = <bool>; // true = not spawned until triggered in level.
++      triggerondeath = <bool>; // true = trigger something when picked up.
++      triggerontouch = <bool>; // true = trigger something when killed.
++      countsecret    = <bool>; // true = counts as secret when picked up.
++      noinfighting   = <bool>; // true = ignore other attackers.
++
+       // Note: suggested editor defaults for all skill, gamemode, and player
+       // class flags is true rather than the UDMF default of false.
+ 
+@@ -482,9 +542,9 @@
+ 
+    Boom used the linedef's tag for both due to lack of other options so in
+    order to ensure compatibility any map converter converting maps for the
+-   Doom/Heretic/Strife namespaces must store the linedef's tag field as both
+-   the id and as arg0 in each line. The default value of the id field under
+-   these namespaces is defined as 0 rather than -1.
++   non-Hexen namespaces must store the linedef's tag field as both the id and
++   as arg0 in each line. The default value of the id field under these
++   namespaces is defined as 0 rather than -1.
+ 
+    Since UDMF provides a line id field, the Hexen line special #121
+    (Line_SetIdentification) is obsolete. When converting maps to UDMF under
