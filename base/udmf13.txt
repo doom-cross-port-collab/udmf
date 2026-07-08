@@ -276,6 +276,8 @@ Doom
 Heretic
 Hexen
 Strife
+PSXDoom
+Doom64
 
 The use of one of these namespaces indicates that all line specials, sector
 specials, thing types, and if applicable, thing specials contained in the UDMF
@@ -303,7 +305,7 @@ independent of any implementing ports' specific namespaces.
 III. Standardized Fields
 =======================================
 
-The UDMF v1.2 specification considers the following fields standard. They must
+The UDMF v1.3 specification considers the following fields standard. They must
 be recognized by all implementing ports and editors (support for the features
 they signify is not necessarily required, such as for ports which do not
 implement Hexen support - all fields unknown to a given port should be
@@ -331,13 +333,11 @@ All boolean fields take the keyword values true and false.
       dontdraw      = <bool>; // true = line never drawn on map.
       mapped        = <bool>; // true = always appears on map.
 
-      // BOOM passuse flag not supported in Strife/Heretic/Hexen namespaces.
+      // Boom passuse flag; undefined outside of the Doom namespace.
 
       passuse       = <bool>; // true = passes use action.
 
-      // Strife specific flags. Support for other games is not defined by
-      // default and these flags should be ignored when reading maps not for
-      // the Strife namespace or maps for a port which supports these flags.
+      // Strife flags; undefined outside of the Strife namespace.
 
       jumpover      = <bool>; // true = line is a Strife railing.
       blockfloaters = <bool>; // true = line is a Strife float-blocker.
@@ -345,8 +345,7 @@ All boolean fields take the keyword values true and false.
       transparent   = <bool>; // true = line is a Strife 25% opacity line.
                               // transparent has priority over translucent.
 
-      // Hexen specific flags.
-      // Undefined outside of the Hexen namespace.
+      // Hexen SPAC flags; undefined outside of the Hexen namespace.
 
       playercross   = <bool>; // true = player can cross.
       playeruse     = <bool>; // true = player can use.
@@ -358,35 +357,41 @@ All boolean fields take the keyword values true and false.
       missilecross  = <bool>; // true = projectile can cross.
       repeatspecial = <bool>; // true = repeatable special.
 
-      // Doom 64 specific flags.
-      // Undefined outside of the Doom 64 namespace.
+      // Doom 64 flags; undefined outside of the Doom 64 namespace.
 
-      drawmasked       = <bool>; // true = draw middle texture on sidedef
-      noocclusion      = <bool>; // true = no added to occlusion buffer
-      dontpegmiddle    = <bool>; // true = middle texture unpegged
-      thingtrigger     = <bool>; // true = dying things can trigger special
-      blockprojectiles = <bool>; // true = line blocks projectiles
-      scrollright      = <bool>; // true = scroll texture to the right
-      scrollleft       = <bool>; // true = scroll texture to the left
-      scrollup         = <bool>; // true = scroll texture up
-      scrolldown       = <bool>; // true = scroll texture down
-      blendfulltop     = <bool>; // true = do not blending extended for top
-      blendfullbottom  = <bool>; // true = do not blending extended for bottom
-      blendingsector   = <bool>; // true = use sector color blending
-      firstsideonly    = <bool>; // true = can only trigger from the front side
-      noautomaptrigger = <bool>; // true = do not display as special in automap
-      inverseblend     = <bool>; // true = invert blending of the sector colors
-      blockplayers     = <bool>; // true = blocks player only
-      mirrorhorizontal = <bool>; // true = texture is mirrored horizontally
-      mirrorvertical   = <bool>; // true = texture is mirrored vertically
-
-      specialred    = <bool>; // true = requires red key to activate
-      specialblue   = <bool>; // true = requires blue key to activate
-      specialyellow = <bool>; // true = requires yellow key to activate
-      specialcross  = <bool>; // true = can be activated by thing crossing
-      specialshoot  = <bool>; // true = can be activated by thing shooting
-      specialuse    = <bool>; // true = can be activated by thing using
-      repeatspecial = <bool>; // true = repeatable special. Same as Hexen.
+      drawmasked       = <bool>; // true = draw middle texture on sidedef.
+      noocclusion      = <bool>; // true = no added to occlusion buffer.
+      dontpegmiddle    = <bool>; // true = middle texture unpegged.
+      thingtrigger     = <bool>; // true = dying things can trigger special.
+      blockprojectiles = <bool>; // true = line blocks projectiles.
+      scrollright      = <bool>; // true = scroll texture to the right.
+      scrollleft       = <bool>; // true = scroll texture to the left.
+      scrollup         = <bool>; // true = scroll texture up.
+      scrolldown       = <bool>; // true = scroll texture down.
+      blendfulltop     = <bool>; // true = do not blending extended for top.
+      blendfullbottom  = <bool>; // true = do not blending extended for bottom.
+      blendingsector   = <bool>; // true = use sector color blending.
+      firstsideonly    = <bool>; // true = can only trigger from front side.
+      noautomaptrigger = <bool>; // true = do not show as special in automap.
+      inverseblend     = <bool>; // true = invert blending of sector colors.
+      blockplayers     = <bool>; // true = blocks player only.
+      mirrorhorizontal = <bool>; // true = texture is mirrored horizontally.
+      mirrorvertical   = <bool>; // true = texture is mirrored vertically.
+      specialred       = <bool>; // true = requires red key to activate.
+      specialblue      = <bool>; // true = requires blue key to activate.
+      specialyellow    = <bool>; // true = requires yellow key to activate.
+      specialcross     = <bool>; // true = can be activated by thing crossing.
+      specialshoot     = <bool>; // true = can be activated by thing shooting.
+      specialuse       = <bool>; // true = can be activated by thing using.
+      repeatspecial    = <bool>; // true = repeatable special. Same as Hexen.
+      switchmasktexture = <integer>; // Special values to handle switch changes.
+      switchmaskdecal   = <integer>; // Indicates which texture should be used
+                                     // for either 'On' (switchmasktexture)
+                                     // or 'Off' (switchmaskdecal) states.
+                                     // 0 = affects none
+                                     // 1 = affects upper texture
+                                     // 2 = affects lower texture
+                                     // 3 = affects middle texture
 
       special = <integer>; // Special. Default = 0.
       arg0    = <integer>; // Argument 0. Default = 0.
@@ -438,7 +443,7 @@ All boolean fields take the keyword values true and false.
 
       // PSX Doom only.
       color_id = <integer>; // Sector's light color, index into LIGHTS lump.
-      noreverb = <bool>;    // true = disable reverd effects
+      noreverb = <bool>;    // true = disable reverd effects.
 
       // Doom 64 only. Uses hexadecimal RGB values, i.e #ffffff, as integers.
       // As opposed to the Doom 64 map format's use of a dedicated compiled lump
@@ -480,11 +485,11 @@ All boolean fields take the keyword values true and false.
       dm          = <bool>; // true = in DM mode.
       coop        = <bool>; // true = in Coop.
 
-      // MBF friend flag not supported in Strife/Heretic/Hexen namespaces.
+      // MBF friend flag; undefined outside of the Doom namespace.
 
       friend      = <bool>; // true = MBF friend.
 
-      // Hexen flags; not supported in Doom/Strife/Heretic namespaces.
+      // Hexen flags; undefined outside of the Hexen namespace.
 
       dormant     = <bool>; // true = dormant thing.
       class1      = <bool>; // true = Present for pclass 1.
@@ -492,9 +497,7 @@ All boolean fields take the keyword values true and false.
       class3      = <bool>; // true = Present for pclass 3.
 
 
-      // Strife specific flags. Support for other games is not defined by
-      // default and these flags should be ignored when reading maps not for
-      // the Strife namespace or maps for a port which supports these flags.
+      // Strife flags; undefined outside of the Strife namespace.
       standing    = <bool>; // true = Strife NPC flag.
       strifeally  = <bool>; // true = Strife ally flag.
       translucent = <bool>; // true = Strife 25% opacity flag.
@@ -502,12 +505,12 @@ All boolean fields take the keyword values true and false.
                             // when combining both translucent and invisible,
                             // an opacity of 75% is used.
 
-      // Doom 64 specific flags
-      deferspawn     = <bool>; // true = not spawned until triggered in level
-      triggerondeath = <bool>; // true = trigger something when picked up
-      triggerontouch = <bool>; // true = trigger something when killed
-      countsecret    = <bool>; // true = counts as secret when picked up
-      noinfighting   = <bool>; // true = ignore other attackers
+      // Doom 64 flags; undefined outside of the Doom 64 namespace.
+      deferspawn     = <bool>; // true = not spawned until triggered in level.
+      triggerondeath = <bool>; // true = trigger something when picked up.
+      triggerontouch = <bool>; // true = trigger something when killed.
+      countsecret    = <bool>; // true = counts as secret when picked up.
+      noinfighting   = <bool>; // true = ignore other attackers.
 
       // Note: suggested editor defaults for all skill, gamemode, and player
       // class flags is true rather than the UDMF default of false.
